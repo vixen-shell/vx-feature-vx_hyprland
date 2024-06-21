@@ -46,6 +46,7 @@ class HyprEventsListener:
         if HyprEventsListener._task:
             utils.Logger.log(f"[{content.feature_name}]: Stop event listener")
             HyprEventsListener._task.cancel()
+            HyprEventsListener._task = None
 
     @staticmethod
     def attach_websocket(websocket: WebSocket):
