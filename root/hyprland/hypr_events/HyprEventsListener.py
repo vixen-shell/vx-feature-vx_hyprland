@@ -1,7 +1,7 @@
 import os, asyncio
 from fastapi import WebSocket
-from typing import List
-from .hypr_events import EventData
+from typing import List, Callable
+from .hypr_events import EventData, event_data_map
 from .. import utils, content
 
 HYPR_SOCKET_PATH = "{}/hypr/{}/.socket2.sock".format(
@@ -9,9 +9,19 @@ HYPR_SOCKET_PATH = "{}/hypr/{}/.socket2.sock".format(
 )
 
 
+def is_valid_event_id(id: str) -> bool:
+    available_event_ids = list(event_data_map.keys())
+
+    if not id in available_event_ids:
+        return False
+
+    return True
+
+
 class HyprEventsListener:
     _task: asyncio.Task = None
     _websockets: List[WebSocket] = []
+    _listeners: dict[str, list[Callable[[dict], None]]] = {}
 
     @staticmethod
     def check_hypr_socket():
@@ -22,10 +32,17 @@ class HyprEventsListener:
         reader, _ = await asyncio.open_unix_connection(HYPR_SOCKET_PATH)
 
         while True:
-            data = EventData(await reader.readline())
+            data = EventData(await reader.readline()).to_json
 
             for websocket in HyprEventsListener._websockets:
-                await websocket.send_json(data.to_json)
+                await websocket.send_json(data)
+
+            for event_id in HyprEventsListener._listeners.keys():
+                if event_id == data["id"]:
+                    listeners = HyprEventsListener._listeners[event_id]
+
+                    for listener in listeners:
+                        listener(data["data"])
 
     @staticmethod
     def start():
@@ -55,3 +72,28 @@ class HyprEventsListener:
     @staticmethod
     def detach_websocket(websocket: WebSocket):
         HyprEventsListener._websockets.remove(websocket)
+
+    @staticmethod
+    def add_listener(event_id: str, listener: Callable[[dict], None]):
+        if not is_valid_event_id(event_id):
+            return
+
+        listeners = HyprEventsListener._listeners.get(event_id)
+
+        if listeners:
+            listeners.append(listener)
+        else:
+            HyprEventsListener._listeners[event_id] = [listener]
+
+    @staticmethod
+    def remove_listener(event_id: str, listener: Callable[[dict], None]):
+        if not is_valid_event_id(event_id):
+            return
+
+        listeners = HyprEventsListener._listeners.get(event_id)
+
+        if listeners:
+            listeners.remove(listener)
+
+            if len(listeners) == 0:
+                HyprEventsListener._listeners.pop(event_id)

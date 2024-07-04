@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+from typing import Callable
 from . import content
 from .hypr_events import HyprEventsListener
 
@@ -16,3 +17,13 @@ async def events(websocket: WebSocket):
                 break
     except:
         HyprEventsListener.detach_websocket(websocket)
+
+
+@content.add_handler("action")
+def add_event_listener(event_id: str, listener: Callable[[dict], None]):
+    HyprEventsListener.add_listener(event_id, listener)
+
+
+@content.add_handler("action")
+def remove_event_listener(event_id: str, listener: Callable[[dict], None]):
+    HyprEventsListener.remove_listener(event_id, listener)
