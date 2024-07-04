@@ -5,11 +5,11 @@ from .hypr_events import HyprEventsListener
 
 
 @content.add_handler("socket")
-async def events(websocket: WebSocket):
-    def on_open(websocket):
+def events(websocket: WebSocket):
+    async def on_open():
         HyprEventsListener.attach_websocket(websocket)
 
-    def on_close(websocket):
+    async def on_close():
         HyprEventsListener.detach_websocket(websocket)
 
     return on_open, None, on_close
