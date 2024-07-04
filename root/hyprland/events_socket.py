@@ -6,17 +6,13 @@ from .hypr_events import HyprEventsListener
 
 @content.add_handler("socket")
 async def events(websocket: WebSocket):
-    try:
+    def on_open(websocket):
         HyprEventsListener.attach_websocket(websocket)
 
-        while True:
-            text = await websocket.receive_text()
-            if text == "close":
-                HyprEventsListener.detach_websocket(websocket)
-                await websocket.close()
-                break
-    except:
+    def on_close(websocket):
         HyprEventsListener.detach_websocket(websocket)
+
+    return on_open, None, on_close
 
 
 @content.add_handler("action")
