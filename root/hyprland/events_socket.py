@@ -1,18 +1,20 @@
 from fastapi import WebSocket
 from typing import Callable
-from . import content
+from . import content, utils
 from .hypr_events import HyprEventsListener
 
 
-@content.add_handler("socket")
-def events(websocket: WebSocket):
-    async def on_open():
+class EventHandler(utils.SocketHandler):
+    async def on_opening(self, websocket: WebSocket):
         HyprEventsListener.attach_websocket(websocket)
 
-    async def on_close():
+    async def on_closing(self, websocket: WebSocket):
         HyprEventsListener.detach_websocket(websocket)
 
-    return on_open, None, on_close
+
+@content.add_handler("socket")
+def events():
+    return EventHandler()
 
 
 @content.add_handler("action")
