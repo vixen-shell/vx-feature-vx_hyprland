@@ -5,16 +5,19 @@ from .hypr_events import HyprEventsListener
 
 
 class EventHandler(utils.SocketHandler):
-    async def on_opening(self, websocket: WebSocket):
-        HyprEventsListener.attach_websocket(websocket)
+    def __init__(self, websocket: WebSocket) -> None:
+        super().__init__(websocket)
 
-    async def on_closing(self, websocket: WebSocket):
-        HyprEventsListener.detach_websocket(websocket)
+    async def on_opening(self):
+        HyprEventsListener.attach_websocket(self.websocket)
+
+    async def on_closing(self):
+        HyprEventsListener.detach_websocket(self.websocket)
 
 
 @content.add_handler("socket")
-def events():
-    return EventHandler()
+def events(websocket: WebSocket):
+    return EventHandler(websocket)
 
 
 @content.add_handler("action")
