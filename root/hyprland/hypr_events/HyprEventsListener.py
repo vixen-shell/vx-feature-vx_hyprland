@@ -42,7 +42,10 @@ class HyprEventsListener:
                     listeners = HyprEventsListener._listeners[event_id]
 
                     for listener in listeners:
-                        listener(data["data"])
+                        try:
+                            listener(data["data"])
+                        except Exception as e:
+                            utils.Logger.log(str(e), "WARNING")
 
     @staticmethod
     def start():
