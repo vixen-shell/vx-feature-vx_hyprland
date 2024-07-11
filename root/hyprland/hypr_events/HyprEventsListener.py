@@ -45,7 +45,7 @@ class HyprEventsListener:
                         try:
                             listener(data["data"])
                         except Exception as e:
-                            utils.Logger.log(str(e), "WARNING")
+                            utils.Logger.log_exception(e)
 
     @staticmethod
     def start():
