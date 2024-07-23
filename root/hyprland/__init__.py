@@ -5,8 +5,5 @@ content = Utils.define_feature_content(
     {"autostart": True, "frames": "disable", "state": "disable"}
 )
 
-from .hypr_events import HyprEventsListener
-
-
-from .events_socket import *
-from .hypr_infos import *
+from .hypr_events import HyprEvents
+from .hypr_infos import HyprInfos
