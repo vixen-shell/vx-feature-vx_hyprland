@@ -1,7 +1,7 @@
 import os, asyncio
 from fastapi import WebSocket
 from typing import List, Callable
-from .hypr_events import EventData, event_data_map
+from .EventData import EventData, event_data_map
 from .. import utils, content
 
 HYPR_SOCKET_PATH = "{}/hypr/{}/.socket2.sock".format(
