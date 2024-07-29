@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "/opt/vixen-env/lib/python3.12/site-packages"
+        "/opt/vixen-env/lib/python3.12/site-packages",
+        "/usr/share/vixen/features",
     ]
 }
