@@ -1,4 +1,41 @@
-from typing import List
+from typing import Literal
+
+EventIds = Literal[
+    "workspace",
+    "workspacev2",
+    "focusedmon",
+    "activewindow",
+    "activewindowv2",
+    "fullscreen",
+    "monitorremoved",
+    "monitoradded",
+    "monitoraddedv2",
+    "createworkspace",
+    "createworkspacev2",
+    "destroyworkspace",
+    "destroyworkspacev2",
+    "moveworkspace",
+    "moveworkspacev2",
+    "renameworkspace",
+    "activespecial",
+    "activelayout",
+    "openwindow",
+    "closewindow",
+    "movewindow",
+    "movewindowv2",
+    "openlayer",
+    "closelayer",
+    "submap",
+    "changefloatingmode",
+    "urgent",
+    "minimize",
+    "screencast",
+    "windowtitle",
+    "ignoregrouplock",
+    "lockgroups",
+    "configreloaded",
+    "pin",
+]
 
 event_data_map = {
     "workspace": ["workspace_name"],
@@ -43,7 +80,7 @@ class EventData:
         self._process_raw_data(data_bytes)
 
     def _process_raw_data(self, data_bytes: bytes):
-        def list_to_dict(event_id: str, data_list: List[str] = None) -> dict:
+        def list_to_dict(event_id: str, data_list: list[str] = None) -> dict:
             data_dict = {}
 
             if data_list and event_id in event_data_map:

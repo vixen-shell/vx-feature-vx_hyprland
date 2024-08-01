@@ -48,18 +48,20 @@ class HyprEventsListener:
                             utils.Logger.log_exception(e)
 
     @staticmethod
-    def start():
+    def start() -> bool:
         if not HyprEventsListener._task:
             if not HyprEventsListener.check_hypr_socket():
                 utils.Logger.log(
                     f"[{content.feature_name}]: Socket not found", "WARNING"
                 )
-                return
+                return False
 
             utils.Logger.log(f"[{content.feature_name}]: Start event listener")
             HyprEventsListener._task = asyncio.create_task(
                 HyprEventsListener.listener_task()
             )
+
+            return True
 
     @staticmethod
     def stop():

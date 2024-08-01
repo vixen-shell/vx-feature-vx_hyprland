@@ -5,5 +5,7 @@ content = Utils.define_feature_content(
     {"autostart": True, "frames": "disable", "state": "disable"}
 )
 
-from .hypr_events import HyprEvents
-from .hypr_infos import HyprInfos
+
+class VXHyprland:
+    from .hypr_events import HyprEvents as Events
+    from .hypr_infos import HyprInfos as Infos
