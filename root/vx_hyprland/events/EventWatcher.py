@@ -47,6 +47,15 @@ class EventWatcher:
                         try:
                             listener(data["data"])
                         except Exception as e:
+                            EventWatcher._listeners[event_id].remove(listener)
+                            utils.logger.log(
+                                f"[{feature.name}]: Listener '{listener.__name__}' raise exception",
+                                "WARNING",
+                            )
+                            utils.logger.log(
+                                f"[{feature.name}]: Listener '{listener.__name__}' removed",
+                                "WARNING",
+                            )
                             utils.logger.log_exception(e)
 
     @staticmethod
