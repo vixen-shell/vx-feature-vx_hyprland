@@ -20,7 +20,7 @@ def is_valid_event_id(id: str) -> bool:
     return True
 
 
-class HyprEventsListener:
+class EventWatcher:
     _task: asyncio.Task = None
     _websockets: List[WebSocket] = []
     _listeners: dict[str, list[Callable[[dict], None]]] = {}
@@ -36,12 +36,12 @@ class HyprEventsListener:
         while True:
             data = EventData(await reader.readline()).to_json
 
-            for websocket in HyprEventsListener._websockets:
+            for websocket in EventWatcher._websockets:
                 await websocket.send_json(data)
 
-            for event_id in HyprEventsListener._listeners.keys():
+            for event_id in EventWatcher._listeners.keys():
                 if event_id == data["id"]:
-                    listeners = HyprEventsListener._listeners[event_id]
+                    listeners = EventWatcher._listeners[event_id]
 
                     for listener in listeners:
                         try:
@@ -51,54 +51,52 @@ class HyprEventsListener:
 
     @staticmethod
     def start() -> bool:
-        if not HyprEventsListener._task:
-            if not HyprEventsListener.check_hypr_socket():
+        if not EventWatcher._task:
+            if not EventWatcher.check_hypr_socket():
                 utils.logger.log(f"[{feature.name}]: Socket not found", "WARNING")
                 return False
 
             utils.logger.log(f"[{feature.name}]: Start event listener")
-            HyprEventsListener._task = asyncio.create_task(
-                HyprEventsListener.listener_task()
-            )
+            EventWatcher._task = asyncio.create_task(EventWatcher.listener_task())
 
             return True
 
     @staticmethod
     def stop():
-        if HyprEventsListener._task:
+        if EventWatcher._task:
             utils.logger.log(f"[{feature.name}]: Stop event listener")
-            HyprEventsListener._task.cancel()
-            HyprEventsListener._task = None
+            EventWatcher._task.cancel()
+            EventWatcher._task = None
 
     @staticmethod
     def attach_websocket(websocket: WebSocket):
-        HyprEventsListener._websockets.append(websocket)
+        EventWatcher._websockets.append(websocket)
 
     @staticmethod
     def detach_websocket(websocket: WebSocket):
-        HyprEventsListener._websockets.remove(websocket)
+        EventWatcher._websockets.remove(websocket)
 
     @staticmethod
     def add_listener(event_id: str, listener: Callable[[dict], None]):
         if not is_valid_event_id(event_id):
             return
 
-        listeners = HyprEventsListener._listeners.get(event_id)
+        listeners = EventWatcher._listeners.get(event_id)
 
         if listeners:
             listeners.append(listener)
         else:
-            HyprEventsListener._listeners[event_id] = [listener]
+            EventWatcher._listeners[event_id] = [listener]
 
     @staticmethod
     def remove_listener(event_id: str, listener: Callable[[dict], None]):
         if not is_valid_event_id(event_id):
             return
 
-        listeners = HyprEventsListener._listeners.get(event_id)
+        listeners = EventWatcher._listeners.get(event_id)
 
         if listeners:
             listeners.remove(listener)
 
             if len(listeners) == 0:
-                HyprEventsListener._listeners.pop(event_id)
+                EventWatcher._listeners.pop(event_id)

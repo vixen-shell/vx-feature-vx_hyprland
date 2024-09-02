@@ -1,7 +1,7 @@
 from typing import Callable
 from fastapi import WebSocket
 from vx_root import root_feature
-from .HyprEventsListener import HyprEventsListener
+from .EventWatcher import EventWatcher
 from .EventData import EventIds
 
 
@@ -10,7 +10,7 @@ feature = root_feature()
 
 @feature.on_startup
 def on_startup():
-    if not HyprEventsListener.start():
+    if not EventWatcher.start():
         return False
 
     return True
@@ -18,23 +18,23 @@ def on_startup():
 
 @feature.on_shutdown
 def on_shutdown():
-    HyprEventsListener.stop()
+    EventWatcher.stop()
     return True
 
 
 class HyprEvents:
     @staticmethod
     def add_listener(event_id: EventIds, listener: Callable[[dict], None]):
-        HyprEventsListener.add_listener(event_id, listener)
+        EventWatcher.add_listener(event_id, listener)
 
     @staticmethod
     def remove_listener(event_id: EventIds, listener: Callable[[dict], None]):
-        HyprEventsListener.remove_listener(event_id, listener)
+        EventWatcher.remove_listener(event_id, listener)
 
     @staticmethod
     def attach_websocket(websocket: WebSocket):
-        HyprEventsListener.attach_websocket(websocket)
+        EventWatcher.attach_websocket(websocket)
 
     @staticmethod
     def detach_websocket(websocket: WebSocket):
-        HyprEventsListener.detach_websocket(websocket)
+        EventWatcher.detach_websocket(websocket)
