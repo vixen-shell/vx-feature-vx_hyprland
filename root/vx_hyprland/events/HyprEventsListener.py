@@ -1,8 +1,10 @@
 import os, asyncio
+from vx_root import root_feature, utils
 from fastapi import WebSocket
 from typing import List, Callable
 from .EventData import EventData, event_data_map
-from .. import utils, content
+
+feature = root_feature()
 
 HYPR_SOCKET_PATH = "{}/hypr/{}/.socket2.sock".format(
     os.getenv("XDG_RUNTIME_DIR"), os.getenv("HYPRLAND_INSTANCE_SIGNATURE")
@@ -45,18 +47,16 @@ class HyprEventsListener:
                         try:
                             listener(data["data"])
                         except Exception as e:
-                            utils.Logger.log_exception(e)
+                            utils.logger.log_exception(e)
 
     @staticmethod
     def start() -> bool:
         if not HyprEventsListener._task:
             if not HyprEventsListener.check_hypr_socket():
-                utils.Logger.log(
-                    f"[{content.feature_name}]: Socket not found", "WARNING"
-                )
+                utils.logger.log(f"[{feature.name}]: Socket not found", "WARNING")
                 return False
 
-            utils.Logger.log(f"[{content.feature_name}]: Start event listener")
+            utils.logger.log(f"[{feature.name}]: Start event listener")
             HyprEventsListener._task = asyncio.create_task(
                 HyprEventsListener.listener_task()
             )
@@ -66,7 +66,7 @@ class HyprEventsListener:
     @staticmethod
     def stop():
         if HyprEventsListener._task:
-            utils.Logger.log(f"[{content.feature_name}]: Stop event listener")
+            utils.logger.log(f"[{feature.name}]: Stop event listener")
             HyprEventsListener._task.cancel()
             HyprEventsListener._task = None
 

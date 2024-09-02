@@ -1,11 +1,11 @@
-from vx_feature_utils import Utils
+from vx_root import root_feature
+from .events import HyprEvents
+from .infos import HyprInfos
 
-utils = Utils.define_feature_utils()
-content = Utils.define_feature_content(
-    {"autostart": True, "frames": "disable", "state": "disable"}
+root_feature().init(
+    {
+        "autostart": True,
+        "frames": "disable",
+        "state": "disable",
+    }
 )
-
-
-class VXHyprland:
-    from .hypr_events import HyprEvents as Events
-    from .hypr_infos import HyprInfos as Infos
